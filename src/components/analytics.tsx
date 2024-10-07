@@ -6,12 +6,14 @@ import confetti from 'canvas-confetti'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ConnectButton, useConnection } from "@arweave-wallet-kit/react"
+import { useNavigate } from 'react-router-dom'
 
 import { spawnProcess, runLua } from "@/lib/ao-vars"
 import { AnalyticsContract } from "@/lib/contract"
 
 export function Analytics() {
   const { connected } = useConnection()
+  const navigate = useNavigate()
   
   const [processId, setProcessId] = useState('')
   const [showDocs, setShowDocs] = useState(false)
@@ -77,6 +79,10 @@ export function Analytics() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
+  }
+
+  const handleViewDashboard = () => {
+    navigate('/viewer')
   }
 
   return (
@@ -196,7 +202,12 @@ export default App;`}
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-white text-black hover:bg-zinc-200">View Analytics Dashboard</Button>
+                  <Button 
+                    className="w-full bg-white text-black hover:bg-zinc-200"
+                    onClick={handleViewDashboard}
+                  >
+                    View Analytics Dashboard
+                  </Button>
                 </CardFooter>
               </Card>
             </motion.div>
