@@ -6,14 +6,12 @@ import confetti from 'canvas-confetti'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ConnectButton, useConnection } from "@arweave-wallet-kit/react"
-import { useNavigate } from 'react-router-dom'
 
 import { spawnProcess, runLua } from "@/lib/ao-vars"
 import { AnalyticsContract } from "@/lib/contract"
 
 export function Analytics() {
   const { connected } = useConnection()
-  const navigate = useNavigate()
   
   const [processId, setProcessId] = useState('')
   const [showDocs, setShowDocs] = useState(false)
@@ -81,16 +79,12 @@ export function Analytics() {
     navigator.clipboard.writeText(text)
   }
 
-  const handleViewDashboard = () => {
-    navigate('/viewer')
-  }
-
   return (
     <div className="container mx-auto px-4 py-8 bg-black min-h-screen text-white">
       <h1 className="text-3xl font-bold mb-2 text-center">Analytics</h1>
       <p className="text-zinc-400 text-center mb-8">by ARlink<sup className="text-xs">™</sup></p>
-      <div className="grid gap-8 md:grid-cols-2">
-        <Card className="md:col-span-1 bg-zinc-900 border-zinc-800">
+      <div className={`grid gap-8 ${connected ? 'md:grid-cols-2' : 'place-items-center'}`}>
+        <Card className={`bg-zinc-900 border-zinc-800 ${connected ? 'md:col-span-1' : 'w-full max-w-md'}`}>
           <CardHeader>
             <CardTitle className="text-white">Connect Wallet</CardTitle>
             <CardDescription className="text-zinc-400">Connect your wallet to get started</CardDescription>
@@ -146,7 +140,7 @@ export function Analytics() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="md:col-span-1"
+              className="md:col-span-1 w-full"
             >
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardHeader>
@@ -202,12 +196,7 @@ export default App;`}
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    className="w-full bg-white text-black hover:bg-zinc-200"
-                    onClick={handleViewDashboard}
-                  >
-                    View Analytics Dashboard
-                  </Button>
+                  <Button className="w-full bg-white text-black hover:bg-zinc-200">View Analytics Dashboard</Button>
                 </CardFooter>
               </Card>
             </motion.div>
