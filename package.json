@@ -15,7 +15,7 @@
     "@permaweb/aoconnect": "^0.0.59",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.1.1",
-    "arlink-analytics": "^1.0.7",
+    "arlink-analytics": "^1.0.8",
     "arweave": "^1.15.5",
     "arweavekit": "^1.5.1",
     "canvas-confetti": "^1.9.3",
