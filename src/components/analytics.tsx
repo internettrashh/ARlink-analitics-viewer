@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Copy, Terminal } from "lucide-react"
+import { CheckCircle, Copy, Terminal, Loader2 } from "lucide-react"
 import confetti from 'canvas-confetti'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ConnectButton,  useConnection } from "@arweave-wallet-kit/react"
+import { ConnectButton, useConnection } from "@arweave-wallet-kit/react"
 
 import { spawnProcess, runLua } from "@/lib/ao-vars"
 import { AnalyticsContract } from "@/lib/contract"
@@ -13,11 +13,10 @@ import { AnalyticsContract } from "@/lib/contract"
 export function Analytics() {
   const { connected } = useConnection()
   
-  //const Address = useActiveAddress()
-
   const [processId, setProcessId] = useState('')
   const [showDocs, setShowDocs] = useState(false)
   const [fetching, setFetching] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (!connected) {
@@ -28,6 +27,7 @@ export function Analytics() {
 
   const generateProcessId = async () => {
     setFetching(true)
+    setIsLoading(true)
     spawnProcess("ARlink-Analytics").then(async (newId) => {
       let success = false;
       let attempts = 0;
@@ -37,7 +37,7 @@ export function Analytics() {
         attempts++;
         try {
           const response = await runLua(AnalyticsContract, newId);
-          if (response) {  // Assuming a truthy response indicates success
+          if (response) {
             success = true;
             console.log(`Success on attempt ${attempts}: analytics id ${newId}`);
             console.log('Response:', response);
@@ -51,19 +51,21 @@ export function Analytics() {
 
       if (success) {
         console.log(`Successfully ran Lua script after ${attempts} attempts`);
+        setProcessId(newId)
+        setIsLoading(false)
+        // Trigger confetti after process ID is generated and displayed
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        })
       } else {
         console.warn(`Failed to get a response after ${maxAttempts} attempts`);
+        setIsLoading(false)
       }
 
-      setProcessId(newId)
       setFetching(false)
     });
-    // Trigger confetti
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    })
   }
 
   useEffect(() => {
@@ -92,7 +94,18 @@ export function Analytics() {
               <ConnectButton />
             ) : (
               <AnimatePresence>
-                {processId && (
+                {isLoading ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center"
+                  >
+                    <Loader2 className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-spin" />
+                    <p className="mb-2 text-zinc-400">Generating Process ID...</p>
+                  </motion.div>
+                ) : processId && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -111,6 +124,7 @@ export function Analytics() {
                         className="border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800"
                       >
                         <Copy className="h-4 w-4" />
+                        <span className="sr-only">Copy process ID</span>
                       </Button>
                     </div>
                   </motion.div>
